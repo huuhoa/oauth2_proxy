@@ -146,10 +146,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	validator := NewValidator(opts.EmailDomains, opts.AuthenticatedEmailsFile)
 	refresher := NewEmailRefresher(opts.AuthenticatedEmailsFile, opts.AuthenticatedEmailsURL)
 	// Call refresh at startup
 	refresher()
+	validator := NewValidator(opts.EmailDomains, opts.AuthenticatedEmailsFile)
 	oauthproxy := NewOAuthProxy(opts, validator, refresher)
 
 	if len(opts.EmailDomains) != 0 && opts.AuthenticatedEmailsFile == "" {
