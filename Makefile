@@ -41,7 +41,7 @@ $(BINARY):
 
 .PHONY: docker
 docker:
-	docker build -f Dockerfile -t quay.io/pusher/oauth2_proxy:latest .
+	docker build -f Dockerfile -t huuhoa/oauth2_proxy:latest .
 
 .PHONY: docker-all
 docker-all: docker

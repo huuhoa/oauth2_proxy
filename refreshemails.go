@@ -15,8 +15,12 @@ type emailListRefresher struct {
 
 func (r *emailListRefresher) Refresh() {
 	logger.Printf("Call refresh")
-	r.downloadFile()
-	logger.Printf("Refresh completed")
+	err := r.downloadFile()
+	if err != nil {
+		logger.Printf("Refresh email list error: %v", err)
+	} else {
+		logger.Printf("Refresh completed")
+	}
 }
 
 func (r *emailListRefresher) downloadFile() error {
