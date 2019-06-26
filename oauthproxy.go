@@ -66,6 +66,7 @@ type OAuthProxy struct {
 	CookieExpire   time.Duration
 	CookieRefresh  time.Duration
 	Validator      func(string) bool
+	Refresher      func()
 
 	RobotsPath        string
 	PingPath          string
@@ -74,6 +75,7 @@ type OAuthProxy struct {
 	OAuthStartPath    string
 	OAuthCallbackPath string
 	AuthOnlyPath      string
+	AuthEmailPath     string
 
 	redirectURL         *url.URL // the url to receive requests at
 	whitelistDomains    []string
@@ -180,7 +182,7 @@ func NewWebSocketOrRestReverseProxy(u *url.URL, opts *Options, auth hmacauth.Hma
 }
 
 // NewOAuthProxy creates a new instance of OOuthProxy from the options provided
-func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
+func NewOAuthProxy(opts *Options, validator func(string) bool, refresher func()) *OAuthProxy {
 	serveMux := http.NewServeMux()
 	var auth hmacauth.HmacAuth
 	if sigData := opts.signatureData; sigData != nil {
@@ -240,6 +242,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		CookieExpire:   opts.CookieExpire,
 		CookieRefresh:  opts.CookieRefresh,
 		Validator:      validator,
+		Refresher:      refresher,
 
 		RobotsPath:        "/robots.txt",
 		PingPath:          "/ping",
@@ -248,6 +251,7 @@ func NewOAuthProxy(opts *Options, validator func(string) bool) *OAuthProxy {
 		OAuthStartPath:    fmt.Sprintf("%s/start", opts.ProxyPrefix),
 		OAuthCallbackPath: fmt.Sprintf("%s/callback", opts.ProxyPrefix),
 		AuthOnlyPath:      fmt.Sprintf("%s/auth", opts.ProxyPrefix),
+		AuthEmailPath:     fmt.Sprintf("%s/refresh", opts.ProxyPrefix),
 
 		ProxyPrefix:         opts.ProxyPrefix,
 		provider:            opts.provider,
@@ -535,6 +539,8 @@ func (p *OAuthProxy) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		p.OAuthCallback(rw, req)
 	case path == p.AuthOnlyPath:
 		p.AuthenticateOnly(rw, req)
+	case path == p.AuthEmailPath:
+		p.RefreshAuthenticatedEmails(rw)
 	default:
 		p.Proxy(rw, req)
 	}
@@ -972,4 +978,11 @@ func (p *OAuthProxy) findBearerToken(req *http.Request) (string, error) {
 	}
 
 	return rawBearerToken, nil
+}
+
+// RefreshAuthenticatedEmails responds 200 OK to requests
+func (p *OAuthProxy) RefreshAuthenticatedEmails(rw http.ResponseWriter) {
+	rw.WriteHeader(http.StatusOK)
+	fmt.Fprintf(rw, "OK: refresh email list")
+	p.Refresher()
 }
