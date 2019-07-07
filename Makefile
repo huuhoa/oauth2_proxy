@@ -55,7 +55,7 @@ docker-all: docker
 
 .PHONY: docker-push
 docker-push:
-	docker push quay.io/pusher/oauth2_proxy:latest
+	docker push huuhoa/oauth2_proxy:latest
 
 .PHONY: docker-push-all
 docker-push-all: docker-push

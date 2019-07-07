@@ -61,7 +61,6 @@ func (um *UserMap) LoadAuthenticatedEmailsFile() {
 	for _, r := range records {
 		address := strings.ToLower(strings.TrimSpace(r[0]))
 		updated[address] = true
-		logger.Printf("allow email: %s", address)
 	}
 	atomic.StorePointer(&um.m, unsafe.Pointer(&updated))
 }
