@@ -18,8 +18,8 @@ import (
 
 	"github.com/coreos/go-oidc"
 	"github.com/mbland/hmacauth"
-	"github.com/pusher/oauth2_proxy/logger"
 	"github.com/pusher/oauth2_proxy/pkg/apis/sessions"
+	"github.com/pusher/oauth2_proxy/pkg/logger"
 	"github.com/pusher/oauth2_proxy/pkg/sessions/cookie"
 	"github.com/pusher/oauth2_proxy/providers"
 	"github.com/stretchr/testify/assert"
@@ -122,7 +122,7 @@ func TestNewReverseProxy(t *testing.T) {
 	backendHost := net.JoinHostPort(backendHostname, backendPort)
 	proxyURL, _ := url.Parse(backendURL.Scheme + "://" + backendHost + "/")
 
-	proxyHandler := NewReverseProxy(proxyURL, time.Second)
+	proxyHandler := NewReverseProxy(proxyURL, &Options{FlushInterval: time.Second})
 	setProxyUpstreamHostHeader(proxyHandler, proxyURL)
 	frontend := httptest.NewServer(proxyHandler)
 	defer frontend.Close()
@@ -144,7 +144,7 @@ func TestEncodedSlashes(t *testing.T) {
 	defer backend.Close()
 
 	b, _ := url.Parse(backend.URL)
-	proxyHandler := NewReverseProxy(b, time.Second)
+	proxyHandler := NewReverseProxy(b, &Options{FlushInterval: time.Second})
 	setProxyDirector(proxyHandler)
 	frontend := httptest.NewServer(proxyHandler)
 	defer frontend.Close()
